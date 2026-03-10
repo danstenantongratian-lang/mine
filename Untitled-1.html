@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UCSC Hub - Student Dashboard</title>
+  <style>
+    :root {
+      --maroon: #800000;
+      --gold: #F4D569;
+      --dark-red: #600000;
+      --light-bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-light: #ffffff;
+      --shadow: 0 10px 30px rgba(0,0,0,0.1);
+      --sidebar-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --light-bg: #121212;
+      --card-bg: #1e1e1e;
+      --text-main: #e0e0e0;
+      --shadow: 0 10px 30px rgba(0,0,0,0.5);
+      --sidebar-bg: #1e1e1e;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--light-bg);
+      color: var(--text-main);
+      transition: background-color 0.4s, color 0.4s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: var(--maroon);
+      color: white;
+      padding: 0.8rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-img {
+      height: 50px;
+      width: auto;
+      border-radius: 12px;
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 15px var(--gold);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .logo-img:hover {
+      box-shadow: 0 0 25px var(--gold);
+    }
+
+    .nav-left .logo-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-center {
+      display: flex;
+      gap: 10px;
+    }
+
+    .tab-btn {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .tab-btn.active {
+      background-color: var(--gold);
+      color: var(--maroon);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:hover {
+      transform: rotate(180deg);
+    }
+
+    .theme-toggle-nav {
+      font-size: 1.2rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Layout Container */
+    .main-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background-color: var(--sidebar-bg);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      height: fit-content;
+      transition: background-color 0.4s;
+      position: relative;
+      z-index: 10;
+    }
+
+    .sidebar h2 {
+      color: var(--maroon);
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 0.5rem;
+    }
+
+    [data-theme="dark"] .sidebar h2 {
+      color: var(--gold);
+    }
+
+    .event-list {
+      list-style: none;
+    }
+
+    .event-item {
+      background: var(--light-bg);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      border-left: 4px solid var(--maroon);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .event-item strong {
+      display: block;
+      color: var(--maroon);
+      margin-bottom: 0.3rem;
+    }
+
+    [data-theme="dark"] .event-item strong {
+      color: var(--gold);
+    }
+
+    .event-item span {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    [data-theme="dark"] .event-item span {
+      color: #aaa;
+    }
+
+    /* Content Area */
+    .content-card {
+      background-color: var(--card-bg);
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      min-height: 600px;
+      transition: background-color 0.4s;
+    }
+
+    /* Sections */
+    .content-section {
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+      animation: sectionFade 0.5s ease-out forwards;
+    }
+
+    @keyframes sectionFade {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    h1 {
+      color: var(--maroon);
+      margin-bottom: 2rem;
+      font-size: 2.2rem;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    [data-theme="dark"] h1 {
+      color: var(--gold);
+    }
+
+    /* Idea Board */
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+
+    input[type="text"], input[type="number"], select, textarea {
+      flex: 1;
+      padding: 0.8rem 1.2rem;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea {
+      background: #2d2d2d;
+      border-color: #444;
+      color: white;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--maroon);
+    }
+
+    .btn-add, .btn-analyze {
+      background-color: var(--maroon);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-add:hover, .btn-analyze:hover {
+      background-color: var(--dark-red);
+    }
+
+    .idea-list {
+      list-style: none;
+    }
+
+    .idea-item {
+      padding: 1.2rem;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+
+    .idea-item:hover {
+      background: rgba(244, 213, 105, 0.05);
+    }
+
+    [data-theme="dark"] .idea-item {
+      border-bottom-color: #333;
+    }
+
+    .idea-item::before {
+      content: "💡";
+      font-size: 1.2rem;
+    }
+
+    /* Situation Analyzer Results */
+    .analysis-results {
+      margin-top: 2rem;
+      display: none;
+    }
+
+    .result-card {
+      background: var(--light-bg);
+      padding: 1.5rem;
+      border-radius: 15px;
+      margin-bottom: 1rem;
+      border-left: 5px solid var(--maroon);
+    }
+
+    [data-theme="dark"] .result-card {
+      background: #252525;
+    }
+
+    .result-card h3 {
+      color: var(--maroon);
+      margin-bottom: 0.8rem;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    [data-theme="dark"] .result-card h3 {
+      color: var(--gold);
+    }
+
+    .result-card p {
+      line-height: 1.6;
+    }
+
+    /* Study Timer */
+    .timer-container {
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .timer-display {
+      font-size: 9rem;
+      font-weight: 800;
+      color: var(--maroon);
+      margin-bottom: 2.5rem;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.05);
+    }
+
+    [data-theme="dark"] .timer-display {
+      color: var(--gold);
+    }
+
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .control-btn {
+      padding: 1rem 3rem;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .btn-start { background-color: var(--maroon); color: white; }
+    .btn-start:hover { background-color: var(--dark-red); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(128,0,0,0.3); }
+
+    .btn-pause { background-color: #f0f0f0; color: #555; }
+    .btn-pause:hover { background-color: #e0e0e0; }
+
+    .btn-reset { background-color: transparent; border-color: #ddd; color: #777; }
+    .btn-reset:hover { border-color: #bbb; color: #333; }
+
+    [data-theme="dark"] .btn-pause { background-color: #333; color: #ccc; }
+    [data-theme="dark"] .btn-reset { border-color: #444; color: #aaa; }
+
+    /* GPA Calc */
+    .gpa-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .gpa-result-box {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: var(--light-bg);
+      border-radius: 15px;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--maroon);
+      text-align: center;
+      border: 2px dashed var(--gold);
+    }
+
+    [data-theme="dark"] .gpa-result-box {
+      color: var(--gold);
+      background: #252525;
+    }
+
+    /* Bottom Bar */
+    .footer {
+      background-color: var(--maroon);
+      height: 12px;
+      width: 100%;
+      margin-top: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 1000px) {
+      .main-container { grid-template-columns: 1fr; }
+      .sidebar { order: 2; }
+      .content-card { order: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar { flex-direction: column; gap: 15px; padding: 1rem; }
+      .nav-center { width: 100%; justify-content: center; flex-wrap: wrap; }
+      .timer-display { font-size: 6rem; }
+      .content-card { padding: 1.5rem; }
+      .timer-controls { flex-direction: column; }
+      .control-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="https://ucsc.cmb.ac.lk/" class="nav-left" style="text-decoration: none; color: inherit;">
+      <img src="logo.jpg" alt="UCSC Logo" class="logo-img">
+      <div class="logo-text">UCSC Hub</div>
+    </a>
+    
+    <div class="nav-center">
+      <button class="tab-btn active" onclick="switchTab('idea-board', this)">Idea Board</button>
+      <button class="tab-btn" onclick="switchTab('study-timer', this)">Study Timer</button>
+      <button class="tab-btn" onclick="switchTab('gpa-calc', this)">GPA Calc</button>
+    </div>
+
+    <div class="nav-right">
+      <button class="icon-btn" title="Refresh" onclick="location.reload()">⟳</button>
+      <div class="theme-toggle-nav" id="themeBtn" onclick="toggleTheme()">🌙</div>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <aside class="sidebar fade-in">
+      <h2>Upcoming Events</h2>
+      <ul class="event-list">
+        <li class="event-item">
+          <strong>Midterm – OOP</strong>
+          <span>Mar 25, 2026 • 9:00 AM</span>
+        </li>
+        <li class="event-item">
+          <strong>Assignment 4 Deadline</strong>
+          <span>Apr 2, 2026 • 23:59</span>
+        </li>
+        <li class="event-item">
+          <strong>Group Project Presentation</strong>
+          <span>Apr 10, 2026 • 1:30 PM</span>
+        </li>
+        <li class="event-item">
+          <strong>Final Exams Start</strong>
+          <span>May 15, 2026</span>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="content-card fade-in" style="animation-delay: 0.2s;">
+      
+      <!-- Idea Board -->
+      <section id="idea-board" class="content-section active">
+        <h1><span>💡</span> Project Idea Board</h1>
+        <div class="input-group">
+          <input type="text" id="studentIdInput" placeholder="Student ID" style="flex: 0 0 150px;">
+          <input type="text" id="ideaInput" placeholder="Enter a new project idea...">
+          <button class="btn-add" onclick="addIdea()">Add Idea</button>
+        </div>
+        <ul class="idea-list" id="ideaList">
+        </ul>
+      </section>
+
+      <!-- Study Timer -->
+      <section id="study-timer" class="content-section">
+        <h1><span>⏰</span> Study Timer</h1>
+        <div class="timer-container">
+          <div class="timer-display" id="timerDisplay">25:00</div>
+          <div class="timer-controls">
+            <button class="control-btn btn-start" id="startBtn" onclick="startTimer()">Start</button>
+            <button class="control-btn btn-pause" id="pauseBtn" onclick="pauseTimer()">Pause</button>
+            <button class="control-btn btn-reset" id="resetBtn" onclick="resetTimer()">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="gpa-calc" class="content-section">
+        <h1><span>📊</span> GPA Calculator</h1>
+        <div id="gpaCourses">
+          <div class="gpa-row">
+            <input type="text" placeholder="Course name">
+            <input type="number" placeholder="Credits" class="credits" min="1" max="4" step="1">
+            <select class="grade">
+              <option value="4.00">A+ / A</option>
+              <option value="3.70">A-</option>
+              <option value="3.30">B+</option>
+              <option value="3.00">B</option>
+              <option value="2.70">B-</option>
+              <option value="2.30">C+</option>
+              <option value="2.00">C</option>
+              <option value="1.70">C-</option>
+              <option value="1.30">D+</option>
+              <option value="1.00">D</option>
+              <option value="0.00">E / F</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button class="btn-add" onclick="addGpaCourse()">+ Add Course</button>
+          <button class="btn-add" style="background: var(--gold); color: var(--maroon);" onclick="calculateGPA()">Calculate</button>
+        </div>
+        <div class="gpa-result-box" id="gpaResult">Your GPA: --</div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="footer"></div>
+
+  <audio id="bell" src="https://assets.mixkit.co/sfx/preview/mixkit-bell-notification-01-484.mp3"></audio>
+
+  <script>
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeBtn = document.getElementById('themeBtn');
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.removeAttribute('data-theme');
+        themeBtn.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        themeBtn.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.getElementById('themeBtn').textContent = '☀️';
+    }
+
+    function addIdea() {
+      const idInput = document.getElementById('studentIdInput');
+      const ideaInput = document.getElementById('ideaInput');
+      const list = document.getElementById('ideaList');
+      
+      const id = idInput.value.trim();
+      const idea = ideaInput.value.trim();
+
+      if (idea) {
+        const li = document.createElement('li');
+        li.className = 'idea-item';
+        // Display ID in a small badge or just prefix if it exists
+        const idSpan = id ? `<span style="font-weight: bold; color: var(--maroon); background: var(--gold); padding: 2px 8px; border-radius: 5px; margin-right: 10px; font-size: 0.85rem;">${id}</span> ` : '';
+        li.innerHTML = `${idSpan}${idea}`;
+        list.appendChild(li);
+        
+        // Clear inputs and focus ID input for next entry
+        idInput.value = '';
+        ideaInput.value = '';
+        idInput.focus();
+      } else {
+        alert("Please enter a project idea.");
+      }
+    }
+
+    // Add idea on Enter key
+    document.querySelectorAll('#studentIdInput, #ideaInput').forEach(input => {
+      input.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          addIdea();
+        }
+      });
+    });
+
+    // Add GPA row on Enter key in GPA inputs
+    document.getElementById('gpaCourses').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addGpaCourse();
+        // Focus the new course name input
+        setTimeout(() => {
+          const rows = document.querySelectorAll('.gpa-row');
+          const lastRow = rows[rows.length - 1];
+          lastRow.querySelector('input').focus();
+        }, 10);
+      }
+    });
+
+    let timeLeft = 25 * 60;
+    let timerId = null;
+    let isRunning = false;
+    const display = document.getElementById('timerDisplay');
+    const bell = document.getElementById('bell');
+
+    function updateTimerDisplay() {
+      const min = Math.floor(timeLeft / 60);
+      const sec = timeLeft % 60;
+      display.textContent = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      timerId = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          isRunning = false;
+          bell.play().catch(()=>{});
+          alert("Time's up! Great study session.");
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerId);
+      isRunning = false;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timeLeft = 25 * 60;
+      updateTimerDisplay();
+    }
+
+    function addGpaCourse() {
+      const container = document.getElementById('gpaCourses');
+      const row = document.createElement('div');
+      row.className = 'gpa-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Course name">
+        <input type="number" placeholder="Credits" class="credits" min="1" max="4" step="1">
+        <select class="grade">
+          <option value="4.00">A+ / A</option>
+          <option value="3.70">A-</option>
+          <option value="3.30">B+</option>
+          <option value="3.00">B</option>
+          <option value="2.70">B-</option>
+          <option value="2.30">C+</option>
+          <option value="2.00">C</option>
+          <option value="1.70">C-</option>
+          <option value="1.30">D+</option>
+          <option value="1.00">D</option>
+          <option value="0.00">E / F</option>
+        </select>
+      `;
+      container.appendChild(row);
+    }
+
+    function calculateGPA() {
+      const credits = document.querySelectorAll('.credits');
+      const grades = document.querySelectorAll('.grade');
+      let totalPoints = 0;
+      let totalCredits = 0;
+      for (let i = 0; i < credits.length; i++) {
+        const c = parseFloat(credits[i].value);
+        const g = parseFloat(grades[i].value);
+        if (!isNaN(c) && c > 0) {
+          totalPoints += c * g;
+          totalCredits += c;
+        }
+      }
+      const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "--";
+      document.getElementById('gpaResult').textContent = `Your GPA: ${gpa}`;
+    }
+  </script>
+</body>
+</html>
